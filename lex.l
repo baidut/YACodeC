@@ -2,7 +2,7 @@
 #include <stdio.h>
 %}
 /* declarations section */
-SOI			\xff\xd8	
+SOI			\xff\xd8
 EOI			\xff\xd9
 SOS			\xff\xda
 DQT			\xff\xdb
@@ -16,17 +16,17 @@ COM			\xff\xfe
 
 /* rules section */
 %%
-SOI			{printf("SOI \n");}		
-EOI			{printf("EOI \n");}
-SOS			{printf("SOS \n");}
-DQT			{printf("DQT \n");}
-DNL			{printf("DNL \n");}
-DRI			{printf("DRI \n");}
-DHP			{printf("DHP \n");}
-EXP			{printf("EXP \n");}
-APPn			{printf("APPn\n");}	
-JPGn			{printf("JPGn\n");}	
-COM			{printf("COM \n");}
+\xff\xd8		{printf("SOI \n");}		
+\xff\xd9		{printf("EOI \n");}
+\xff\xda		{printf("SOS \n");}
+\xff\xdb		{printf("DQT \n");}
+\xff\xdc		{printf("DNL \n");}
+\xff\xdd		{printf("DRI \n");}
+\xff\xde		{printf("DHP \n");}
+\xff\xdf		{printf("EXP \n");}
+\xff[\xe0-\xef]		{printf("APPn\n");}	
+\xff[\xf0-\xfd]		{printf("JPGn\n");}	
+\xff\xfe		{printf("COM \n");}
 .|\n			{printf(".");}
 
 %%
