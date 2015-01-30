@@ -4,6 +4,6 @@ cat.jpg
 jpeg.jpeg
 dump_ascii
 *.txt
-
-
-
+~* 
+*~
+*.*~
