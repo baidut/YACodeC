@@ -1,0 +1,39 @@
+%{
+#include <stdio.h>
+%}
+/* declarations section */
+
+
+/* rules section */
+%%
+"0"	{printf("~");}
+"1"	{printf("*");}   
+"2"	{printf("+");}
+"\x33"	{printf("3");}
+"\x34"	{printf("4");}
+\x35	{printf("5");}
+\x36\x37 {printf("[67]");}
+\xff    {printf("[marker?]");}
+.|\n	{printf("-");}
+
+%%
+
+/* programs section */
+
+#pragma  comment(lib,"y1.lib")
+// lex.yy.c:(.text 0xc8f):对‘yywrap’未定义的引用
+int yywrap() 
+{ 
+   return(1); 
+} 
+int main(void)
+{
+    //printf("<FONT face=/"Courier New/" size=2>");
+
+	yyin=stdin; 
+	yyout=stdout;   
+
+	return yylex();
+
+    //printf("</FONT>");
+}
