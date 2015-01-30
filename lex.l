@@ -16,17 +16,18 @@ COM			\xff\xfe
 
 /* rules section */
 %%
-\xff\xd8		{printf("SOI \n");}		
-\xff\xd9		{printf("EOI \n");}
-\xff\xda		{printf("SOS \n");}
-\xff\xdb		{printf("DQT \n");}
-\xff\xdc		{printf("DNL \n");}
-\xff\xdd		{printf("DRI \n");}
-\xff\xde		{printf("DHP \n");}
-\xff\xdf		{printf("EXP \n");}
-\xff[\xe0-\xef]		{printf("APPn\n");}	
-\xff[\xf0-\xfd]		{printf("JPGn\n");}	
-\xff\xfe		{printf("COM \n");}
+\xff\xd8		{printf("SOI");}		
+\xff\xd9		{printf("EOI\n");}
+\xff\xda		{printf("SOS");}
+\xff\xdb		{printf("DQT");}
+\xff\xdc		{printf("DNL");}
+\xff\xdd		{printf("DRI");}
+\xff\xde		{printf("DHP");}
+\xff\xdf		{printf("EXP");}
+\xff[\xe0-\xef]		{printf("APPn");}	
+\xff[\xf0-\xfd]		{printf("JPGn");}	
+\xff\xfe		{printf("COM");}
+([^\xff][.\n]|\xff\x00)+ {printf("ECS");}
 .|\n			{printf(".");}
 
 %%
