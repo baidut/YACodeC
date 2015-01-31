@@ -1,5 +1,11 @@
 %{
 #include <stdio.h>
+
+int yacodec_this_byte;
+#define yacodec_next_byte  (input())
+#define yacodec_next_half1 (yacodec_this_byte=input(),yacodec_this_byte/16)
+#define yacodec_next_half2 (yacodec_this_byte%16)
+#define yacodec_next_word  (input()*256+input())
 %}
 /* declarations section */
 SOF0            \xff\xc0
@@ -51,7 +57,21 @@ ECS         ([^\xff][.\n]|\xff\x00)+
 {COM}        {printf("COM");}
 {ECS}        {printf("ECS");}
 
-{SOF0}            {printf("SOF0 ");}
+{SOF0}            {int Nf,i;
+                    printf("SOF0:");
+                    printf("len:%d ",yacodec_next_word); 
+                    printf("P:%d ",yacodec_next_byte); 
+                    printf("Y:%d ",yacodec_next_word); 
+                    printf("X:%d ",yacodec_next_word); 
+                    Nf = yacodec_next_byte;
+                    printf("Nf:%d ",Nf); 
+                    for(i = 1 ; i <= Nf; i++){
+                        printf("C%d:%d ",i,yacodec_next_byte);
+                        printf("H%d:%d ",i,yacodec_next_half1); 
+                        printf("V%d:%d ",i,yacodec_next_half2); 
+                        printf("Tq%d:%d ",i,yacodec_next_byte); 
+                    }
+                  }
 {SOF1}            {printf("SOF1 ");}
 {SOF2}            {printf("SOF2 ");}
 {SOF3}            {printf("SOF3 ");}
