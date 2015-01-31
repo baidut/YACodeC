@@ -6,6 +6,8 @@ int yacodec_this_byte;
 #define yacodec_next_half1 (yacodec_this_byte=input(),yacodec_this_byte/16)
 #define yacodec_next_half2 (yacodec_this_byte%16)
 #define yacodec_next_word  (input()*256+input())
+#define yacodec_ptr        (yy_c_buf_p)
+
 %}
 /* declarations section */
 SOF0            \xff\xc0
@@ -29,6 +31,10 @@ SOF15           \xff\xcf
 TEM             \xff\x01
 RES             \xff[\x02-\xbf]
 
+DHT     \xff\xc4 
+DAC     \xff\xcc 
+RSTm    \xff[\xd0-\xd7]
+
 SOI         \xff\xd8
 EOI         \xff\xd9
 SOS         \xff\xda
@@ -46,8 +52,36 @@ ECS         ([^\xff][.\n]|\xff\x00)+
 %%
 {SOI}        {printf("SOI");}
 {EOI}        {printf("EOI\n");}
-{SOS}        {printf("SOS");}
-{DQT}        {printf("DQT");}
+{SOS}        {int Ns,i;
+                    printf("\n[SOS]");
+                    printf("len:%d ",yacodec_next_word); 
+                    Ns = yacodec_next_byte;
+                    printf("Ns:%d ",Ns); 
+                    for(i = 1 ; i <= Ns; i++){
+                        printf("Cs%d:%d ",i,yacodec_next_byte);
+                        printf("Td%d:%d ",i,yacodec_next_half1); 
+                        printf("Ta%d:%d ",i,yacodec_next_half2); 
+                    }
+                    printf("Ss:%d ",yacodec_next_byte); 
+                    printf("Se:%d ",yacodec_next_byte); 
+                    printf("Ah:%d ",yacodec_next_half1); 
+                    printf("Al:%d ",yacodec_next_half2); 
+             }
+{DQT}        {int Lq,i,j,N,Pq;
+                    printf("\n[DQT]");
+                    Lq = yacodec_next_word;
+                    printf("len:%d ",Lq); 
+                    N = 2;
+                    do{
+                        Pq = yacodec_next_half1;
+                        printf("Pq:%d ",Pq); 
+                        printf("Tq:%d ",yacodec_next_half2); 
+                        for(j = 0; j < 64; j++){
+                            printf("Q%d:%d ",j,(Pq)?yacodec_next_word:yacodec_next_byte);
+                        }
+                        N += (Pq)?129:65;
+                    } while( N < Lq); //!=
+             }
 {DNL}        {printf("DNL");}
 {DRI}        {printf("DRI");}
 {DHP}        {printf("DHP");}
@@ -57,8 +91,21 @@ ECS         ([^\xff][.\n]|\xff\x00)+
 {COM}        {printf("COM");}
 {ECS}        {printf("ECS");}
 
+{SOF1}            |
+{SOF2}            |
+{SOF3}            |
+{SOF5}            |
+{SOF6}            |
+{SOF7}            |
+{JPG}             |
+{SOF9}            |
+{SOF10}           |
+{SOF11}           |
+{SOF13}           |
+{SOF14}           |
+{SOF15}           |
 {SOF0}            {int Nf,i;
-                    printf("SOF0:");
+                    printf("\n[SOF0]");
                     printf("len:%d ",yacodec_next_word); 
                     printf("P:%d ",yacodec_next_byte); 
                     printf("Y:%d ",yacodec_next_word); 
@@ -72,21 +119,32 @@ ECS         ([^\xff][.\n]|\xff\x00)+
                         printf("Tq%d:%d ",i,yacodec_next_byte); 
                     }
                   }
-{SOF1}            {printf("SOF1 ");}
-{SOF2}            {printf("SOF2 ");}
-{SOF3}            {printf("SOF3 ");}
-{SOF5}            {printf("SOF5 ");}
-{SOF6}            {printf("SOF6 ");}
-{SOF7}            {printf("SOF7 ");}
-{JPG}             {printf("JPG  ");}
-{SOF9}            {printf("SOF9 ");}
-{SOF10}           {printf("SOF10");}
-{SOF11}           {printf("SOF11");}
-{SOF13}           {printf("SOF13");}
-{SOF14}           {printf("SOF14");}
-{SOF15}           {printf("SOF15");}
+
 {TEM}             {printf("TEM  ");}
 {RES}             {printf("RES  ");}
+
+{DHT}           {int i,j,len,L[17];
+                 char* l;
+                    printf("\n[DHT]");
+                    l = yacodec_ptr;
+                    len = yacodec_next_word;
+                    printf("len:%d ",len); 
+                    do{
+                        printf("Tc:%d ",yacodec_next_half1); 
+                        printf("Th:%d ",yacodec_next_half2); 
+                        for(i = 1; i <= 16; i++){
+                            L[i] = yacodec_next_byte;
+                            printf("L%d:%d ",i,L[i]); 
+                        }
+                        for(i = 1; i <= 16; i++){
+                            for(j = 1; j <= L[i]; j++){
+                                printf("V(%d,%d):%d ",i,j,yacodec_next_byte); 
+                            }
+                        }
+                    }while( yacodec_ptr - l < len ); // !=
+                }
+{DAC}           {printf("DAC ");}
+{RSTm}          {printf("RSTm");}
 
 .|\n         {printf(".");}
 %%
