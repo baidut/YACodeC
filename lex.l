@@ -2,6 +2,27 @@
 #include <stdio.h>
 %}
 /* declarations section */
+SOF0            \xff\xc0
+SOF1            \xff\xc1
+SOF2            \xff\xc2
+SOF3            \xff\xc3
+
+SOF5            \xff\xc5
+SOF6            \xff\xc6
+SOF7            \xff\xc7
+
+JPG             \xff\xc8
+SOF9            \xff\xc9
+SOF10           \xff\xca
+SOF11           \xff\xcb
+
+SOF13           \xff\xcd
+SOF14           \xff\xce
+SOF15           \xff\xcf
+
+TEM             \xff\x01
+RES             \xff[\x02-\xbf]
+
 SOI         \xff\xd8
 EOI         \xff\xd9
 SOS         \xff\xda
@@ -29,6 +50,23 @@ ECS         ([^\xff][.\n]|\xff\x00)+
 {JPGn}       {printf("JPGn");}
 {COM}        {printf("COM");}
 {ECS}        {printf("ECS");}
+
+{SOF0}            {printf("SOF0 ");}
+{SOF1}            {printf("SOF1 ");}
+{SOF2}            {printf("SOF2 ");}
+{SOF3}            {printf("SOF3 ");}
+{SOF5}            {printf("SOF5 ");}
+{SOF6}            {printf("SOF6 ");}
+{SOF7}            {printf("SOF7 ");}
+{JPG}             {printf("JPG  ");}
+{SOF9}            {printf("SOF9 ");}
+{SOF10}           {printf("SOF10");}
+{SOF11}           {printf("SOF11");}
+{SOF13}           {printf("SOF13");}
+{SOF14}           {printf("SOF14");}
+{SOF15}           {printf("SOF15");}
+{TEM}             {printf("TEM  ");}
+{RES}             {printf("RES  ");}
 
 .|\n         {printf(".");}
 %%
