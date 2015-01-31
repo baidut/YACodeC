@@ -46,14 +46,14 @@ EXP         \xff\xdf
 APPn        \xff[\xe0-\xef]
 JPGn        \xff[\xf0-\xfd]
 COM         \xff\xfe
-ECS         ([^\xff][.\n]|\xff\x00)+
+ECS         ([^\xff]|(\xff\x00))+
 
 /* rules section */
 %%
-{SOI}        {printf("SOI");}
-{EOI}        {printf("EOI\n");}
+{SOI}        {printf("\n[SOI]\t");}
+{EOI}        {printf("\n[EOI]\t");}
 {SOS}        {int Ns,i;
-                    printf("\n[SOS]");
+                    printf("\n[SOS]\t");
                     printf("len:%d ",yacodec_next_word); 
                     Ns = yacodec_next_byte;
                     printf("Ns:%d ",Ns); 
@@ -68,7 +68,7 @@ ECS         ([^\xff][.\n]|\xff\x00)+
                     printf("Al:%d ",yacodec_next_half2); 
              }
 {DQT}        {int Lq,i,j,N,Pq;
-                    printf("\n[DQT]");
+                    printf("\n[DQT]\t");
                     Lq = yacodec_next_word;
                     printf("len:%d ",Lq); 
                     N = 2;
@@ -83,13 +83,32 @@ ECS         ([^\xff][.\n]|\xff\x00)+
                     } while( N < Lq); //!=
              }
 {DNL}        {printf("DNL");}
-{DRI}        {printf("DRI");}
+{DRI}        {  printf("\n[DRI]\t");
+                printf("len:%d ",yacodec_next_word); 
+                printf("Ri:%d ",yacodec_next_word); 
+             }
 {DHP}        {printf("DHP");}
 {EXP}        {printf("EXP");}
-{APPn}       {printf("APPn");}
+{APPn}       {int len;
+              char* l = yacodec_ptr;
+                printf("\n[APPn]\t");
+                len = yacodec_next_word;
+                printf("len:%d ap:",len); 
+                do{
+                    printf("%c",yacodec_next_byte); 
+                }while( yacodec_ptr - l < len ); // !=
+             }
 {JPGn}       {printf("JPGn");}
-{COM}        {printf("COM");}
-{ECS}        {printf("ECS");}
+{COM}        {int len;
+              char* l = yacodec_ptr;
+                printf("\n[COM]\t");
+                len = yacodec_next_word;
+                printf("len:%d cm:",len); 
+                do{
+                    printf("%c",yacodec_next_byte); 
+                }while( yacodec_ptr - l < len ); // !=
+             }
+{ECS}        {printf("\n[ECS]\t");}
 
 {SOF1}            |
 {SOF2}            |
@@ -105,7 +124,7 @@ ECS         ([^\xff][.\n]|\xff\x00)+
 {SOF14}           |
 {SOF15}           |
 {SOF0}            {int Nf,i;
-                    printf("\n[SOF0]");
+                    printf("\n[SOF0]\t");
                     printf("len:%d ",yacodec_next_word); 
                     printf("P:%d ",yacodec_next_byte); 
                     printf("Y:%d ",yacodec_next_word); 
@@ -125,7 +144,7 @@ ECS         ([^\xff][.\n]|\xff\x00)+
 
 {DHT}           {int i,j,len,L[17];
                  char* l;
-                    printf("\n[DHT]");
+                    printf("\n[DHT]\t");
                     l = yacodec_ptr;
                     len = yacodec_next_word;
                     printf("len:%d ",len); 
@@ -143,7 +162,18 @@ ECS         ([^\xff][.\n]|\xff\x00)+
                         }
                     }while( yacodec_ptr - l < len ); // !=
                 }
-{DAC}           {printf("DAC ");}
+{DAC}           {int len;
+                 char* l;
+                    printf("\n[DAC]\t");
+                    l = yacodec_ptr;
+                    len = yacodec_next_word;
+                    printf("len:%d ",len); 
+                    do{
+                        printf("Tc:%d ",yacodec_next_half1); 
+                        printf("Tb:%d ",yacodec_next_half2); 
+                        printf("Cs:%d ",yacodec_next_byte); 
+                    }while( yacodec_ptr - l < len ); // !=
+                }
 {RSTm}          {printf("RSTm");}
 
 .|\n         {printf(".");}
